@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Omega Rarities – Spending Leaderboard</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #0f1115;
+      color: #eaeaea;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #2a2d35;
+      text-align: left;
+    }
+
+    th {
+      background: #1a1d24;
+      cursor: pointer;
+    }
+
+    tr:hover {
+      background: #161a22;
+    }
+
+    .rank {
+      width: 60px;
+      text-align: center;
+      color: #aaa;
+    }
+
+    .robux {
+      text-align: right;
+      font-weight: bold;
+      color: #6ee7b7;
+    }
+  </style>
+</head>
+<body>
+
+<h1>💰 Omega Rarities – Top Spenders</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th class="rank">#</th>
+      <th>Player</th>
+      <th class="robux">Total Robux Spent</th>
+    </tr>
+  </thead>
+  <tbody id="leaderboard"></tbody>
+</table>
+
+<script>
+async function loadData() {
+  const res = await fetch("index.json");
+  const messages = await res.json();
+
+  const totals = {};
+
+  for (const msg of messages) {
+    if (!msg.embeds || msg.embeds.length === 0) continue;
+
+    for (const embed of msg.embeds) {
+      if (!embed.fields || !embed.title) continue;
+
+      // Only count purchase embeds
+      const priceField = embed.fields.find(f =>
+        f.value && f.value.includes("Price:")
+      );
+
+      if (!priceField) continue;
+
+      // Buyer name is before the first "("
+      const buyer = embed.title.split(" (")[0].trim();
+
+      // Extract number from "Price: 690 Robux"
+      const match = priceField.value.match(/Price:\s*([\d,]+)/i);
+      if (!match) continue;
+
+      const price = parseInt(match[1].replace(/,/g, ""), 10);
+
+      totals[buyer] = (totals[buyer] || 0) + price;
+    }
+  }
+
+  renderLeaderboard(totals);
+}
+
+function renderLeaderboard(totals) {
+  const tbody = document.getElementById("leaderboard");
+
+  const sorted = Object.entries(totals)
+    .sort((a, b) => b[1] - a[1]);
+
+  sorted.forEach(([player, amount], index) => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td class="rank">${index + 1}</td>
+      <td>${player}</td>
+      <td class="robux">${amount.toLocaleString()} Robux</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+loadData();
+</script>
+
+</body>
+</html>
