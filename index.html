@@ -16,12 +16,21 @@
       margin-bottom: 5px;
     }
 
-    .total-robux {
+    .totals {
       text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .total-robux {
       font-size: 1.2rem;
       font-weight: bold;
       color: #6ee7b7;
-      margin-bottom: 20px;
+    }
+
+    .after-tax {
+      font-size: 1rem;
+      color: #93c5fd;
+      margin-top: 4px;
     }
 
     table {
@@ -38,7 +47,6 @@
 
     th {
       background: #1a1d24;
-      cursor: pointer;
     }
 
     tr:hover {
@@ -61,7 +69,11 @@
 <body>
 
 <h1>💰 Omega Rarities – Top Spenders</h1>
-<div id="totalRobux" class="total-robux"></div>
+
+<div class="totals">
+  <div id="totalRobux" class="total-robux"></div>
+  <div id="afterTaxRobux" class="after-tax"></div>
+</div>
 
 <table>
   <thead>
@@ -105,8 +117,13 @@ async function loadData() {
     }
   }
 
+  const afterTax = Math.floor(grandTotal * 0.7);
+
   document.getElementById("totalRobux").textContent =
     `Total Robux Spent: ${grandTotal.toLocaleString()} Robux`;
+
+  document.getElementById("afterTaxRobux").textContent =
+    `After 30% Roblox Tax: ${afterTax.toLocaleString()} Robux`;
 
   renderLeaderboard(totals);
 }
